@@ -1,7 +1,10 @@
 using System.Collections.Generic;
+using System.Security.Authentication.ExtendedProtection;
+using Microsoft.Extensions.DependencyInjection;
 using NPitaya.Models;
 using Prometheus;
 using Prometheus.DotNetRuntime;
+using Prometheus.SystemMetrics;
 
 namespace NPitaya.Metrics
 {
@@ -14,6 +17,7 @@ namespace NPitaya.Metrics
         readonly string _namespace;
         readonly MetricServer _server;
         readonly DotNetRuntimeStatsBuilder.Builder _dotnetCollector;
+        readonly IServiceCollection _systemMetrics;
 
         readonly Dictionary<string, Counter> _counters;
         readonly Dictionary<string, Gauge> _gauges;
@@ -41,12 +45,14 @@ namespace NPitaya.Metrics
                 .WithThreadPoolStats()
                 .WithGcStats()
                 .WithExceptionStats();
+            _systemMetrics = new ServiceCollection();
         }
 
         internal void Start()
         {
             Logger.Info("Starting Prometheus metrics server at {0}:{1}", _host, _port);
             _dotnetCollector?.StartCollecting();
+            _systemMetrics.AddSystemMetrics();
             _server.Start();
         }
 
