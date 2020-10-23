@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using NPitaya.Models;
 using Prometheus;
+using Prometheus.DotNetRuntime;
 
 namespace NPitaya.Metrics
 {
@@ -10,8 +11,9 @@ namespace NPitaya.Metrics
 
         readonly string _host;
         readonly int _port;
-        readonly MetricServer _server;
         readonly string _namespace;
+        readonly MetricServer _server;
+        readonly DotNetRuntimeStatsBuilder.Builder _dotnetCollector;
 
         readonly Dictionary<string, Counter> _counters;
         readonly Dictionary<string, Gauge> _gauges;
@@ -32,11 +34,19 @@ namespace NPitaya.Metrics
             _counters = new Dictionary<string, Counter>();
             _gauges = new Dictionary<string, Gauge>();
             _histograms = new Dictionary<string, Histogram>();
+            _dotnetCollector = DotNetRuntimeStatsBuilder
+                .Customize()
+                .WithContentionStats()
+                .WithThreadPoolSchedulingStats()
+                .WithThreadPoolStats()
+                .WithGcStats()
+                .WithExceptionStats();
         }
 
         internal void Start()
         {
             Logger.Info("Starting Prometheus metrics server at {0}:{1}", _host, _port);
+            _dotnetCollector?.StartCollecting();
             _server.Start();
         }
 
