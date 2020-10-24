@@ -26,10 +26,11 @@ namespace NPitaya.Metrics
         internal PrometheusReporter(MetricsConfiguration config) : this(
             config.Host,
             config.Port,
-            config.Namespace
+            config.Namespace,
+            config.CustomMetrics
         ){}
 
-        private PrometheusReporter(string host, string port, string @namespace)
+        private PrometheusReporter(string host, string port, string @namespace, CustomMetrics customMetrics)
         {
             _namespace = @namespace;
             _host = host;
@@ -46,6 +47,7 @@ namespace NPitaya.Metrics
                 .WithGcStats()
                 .WithExceptionStats();
             _systemMetrics = new ServiceCollection();
+            ImportCustomMetrics(customMetrics);
         }
 
         internal void Start()
@@ -107,6 +109,26 @@ namespace NPitaya.Metrics
         string BuildKey(string suffix)
         {
             return $"{_namespace}{LabelSeparator}{suffix}";
+        }
+
+        void ImportCustomMetrics(CustomMetrics metrics)
+        {
+            if (metrics == null) return;
+
+            foreach (var metric in metrics.Counters)
+            {
+                RegisterCounter(metric.Name, metric.Help, metric.Labels);
+            }
+
+            foreach (var metric in metrics.Gauges)
+            {
+                RegisterGauge(metric.Name, metric.Help, metric.Labels);
+            }
+
+            foreach (var metric in metrics.Histograms)
+            {
+                RegisterHistogram(metric.Name, metric.Help, metric.Labels);
+            }
         }
     }
 }
