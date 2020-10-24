@@ -36,9 +36,11 @@ namespace NPitaya.Metrics
             var ns = Marshal.PtrToStringAnsi(opts.MetricNamespace);
             // TODO (felipe.rodopoulos): prometheus-net does not support subsystem label yet. We'll use a hardcoded one.
             var name = Marshal.PtrToStringAnsi(opts.Name);
+            var help = Marshal.PtrToStringAnsi(opts.Help);
+            var labels = Marshal.PtrToStructure<string[]>(opts.VariableLabels);
             var prometheusReporter = RetrievePrometheus(prometheusPtr);
             var key = BuildKey(name);
-            prometheusReporter.RegisterCounter(key);
+            prometheusReporter.RegisterCounter(key, help, labels);
         }
 
         static void RegisterHistogramFn(IntPtr prometheusPtr, MetricsOpts opts)
@@ -46,9 +48,11 @@ namespace NPitaya.Metrics
             var ns = Marshal.PtrToStringAnsi(opts.MetricNamespace);
             // TODO (felipe.rodopoulos): prometheus-net does not support subsystem label yet. We'll use a hardcoded one.
             var name = Marshal.PtrToStringAnsi(opts.Name);
+            var help = Marshal.PtrToStringAnsi(opts.Help);
+            var labels = Marshal.PtrToStructure<string[]>(opts.VariableLabels);
             var prometheusReporter = RetrievePrometheus(prometheusPtr);
             var key = BuildKey(name);
-            prometheusReporter.RegisterHistogram(key);
+            prometheusReporter.RegisterHistogram(key, help, labels);
         }
 
         static void RegisterGaugeFn(IntPtr prometheusPtr, MetricsOpts opts)
@@ -56,31 +60,36 @@ namespace NPitaya.Metrics
             var ns = Marshal.PtrToStringAnsi(opts.MetricNamespace);
             // TODO (felipe.rodopoulos): prometheus-net does not support subsystem label yet. We'll use a hardcoded one.
             var name = Marshal.PtrToStringAnsi(opts.Name);
+            var help = Marshal.PtrToStringAnsi(opts.Help);
+            var labels = Marshal.PtrToStructure<string[]>(opts.VariableLabels);
             var prometheusReporter = RetrievePrometheus(prometheusPtr);
             var key = BuildKey(name);
-            prometheusReporter.RegisterGauge(key);
+            prometheusReporter.RegisterGauge(key, help, labels);
         }
 
         static void IncCounterFn(IntPtr prometheusPtr, IntPtr name, ref IntPtr labels, UInt32 labelsCount)
         {
             string nameStr = Marshal.PtrToStringAnsi(name);
+            var labelsArr = Marshal.PtrToStructure<string[]>(labels);
             var prometheus = RetrievePrometheus(prometheusPtr);
-            prometheus.IncCounter(nameStr);
+            prometheus.IncCounter(nameStr, labelsArr);
         }
 
         static void ObserveHistFn(IntPtr prometheusPtr, IntPtr name, double value, ref IntPtr labels, UInt32 labelsCount)
         {
             string nameStr = Marshal.PtrToStringAnsi(name);
             var key = BuildKey(nameStr);
+            var labelsArr = Marshal.PtrToStructure<string[]>(labels);
             var prometheus = RetrievePrometheus(prometheusPtr);
-            prometheus.ObserveHistogram(key, value);
+            prometheus.ObserveHistogram(key, value, labelsArr);
         }
 
         static void SetGaugeFn(IntPtr prometheusPtr, IntPtr name, double value, ref IntPtr labels, UInt32 labelsCount)
         {
             string nameStr = Marshal.PtrToStringAnsi(name);
+            var labelsArr = Marshal.PtrToStructure<string[]>(labels);
             var prometheus = RetrievePrometheus(prometheusPtr);
-            prometheus.SetGauge(nameStr, value);
+            prometheus.SetGauge(nameStr, value, labelsArr);
         }
 
         static void AddGaugeFn(IntPtr prometheusPtr, IntPtr name, double value, ref IntPtr labels, UInt32 labelsCount)
