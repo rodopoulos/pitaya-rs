@@ -290,6 +290,21 @@ namespace NPitaya
             return Rpc<T>("", route, msg);
         }
 
+        public static void IncCounter(string name)
+        {
+            _metricsReporter.IncCounter(name);
+        }
+
+        public static void SetGauge(string name, float value)
+        {
+            _metricsReporter.SetGauge(name, value);
+        }
+
+        public static void IncCounter(string name, float value)
+        {
+            _metricsReporter.ObserveHistogram(name, value);
+        }
+
         private static void OnServerAddedOrRemovedNativeCb(int serverAdded, IntPtr serverPtr, IntPtr user)
         {
             var pitayaClusterHandle = (GCHandle)user;
