@@ -10,7 +10,8 @@ namespace NPitaya.Metrics
 {
     public class PrometheusReporter
     {
-        private const string LabelSeparator = "_";
+        const string LabelSeparator = "_";
+        static readonly string[] NoLabels = new string[] {};
 
         readonly string _host;
         readonly int _port;
@@ -62,7 +63,7 @@ namespace NPitaya.Metrics
         {
             var key = BuildKey(name);
             Logger.Debug($"Registering counter metric {key}");
-            var counter = Prometheus.Metrics.CreateCounter(key, help ?? "");
+            var counter = Prometheus.Metrics.CreateCounter(key, help ?? "", labels ?? NoLabels);
             _counters.Add(key, counter);
         }
 
@@ -70,7 +71,7 @@ namespace NPitaya.Metrics
         {
             var key = BuildKey(name);
             Logger.Debug($"Registering gauge metric {key}");
-            var gauge = Prometheus.Metrics.CreateGauge(key, help ?? "");
+            var gauge = Prometheus.Metrics.CreateGauge(key, help ?? "", labels ?? NoLabels);
             _gauges.Add(key, gauge);
         }
 
@@ -78,7 +79,7 @@ namespace NPitaya.Metrics
         {
             var key = BuildKey(name);
             Logger.Debug($"Registering histogram metric {key}");
-            var histogram = Prometheus.Metrics.CreateHistogram(key, help ?? "");
+            var histogram = Prometheus.Metrics.CreateHistogram(key, help ?? "", labels ?? NoLabels);
             _histograms.Add(key, histogram);
         }
 
@@ -87,7 +88,7 @@ namespace NPitaya.Metrics
             var key = BuildKey(name);
             var counter = _counters[key];
             Logger.Debug($"Incrementing counter {key}");
-            counter.Inc();
+            counter.WithLabels(labels ?? NoLabels).Inc();
         }
 
         internal void SetGauge(string name, double value, string[] labels = null)
@@ -95,7 +96,7 @@ namespace NPitaya.Metrics
             var key = BuildKey(name);
             var gauge = _gauges[key];
             Logger.Debug($"Setting gauge {key} with value {value}");
-            gauge.Set(value);
+            gauge.WithLabels(labels ?? NoLabels).Set(value);
         }
 
         internal void ObserveHistogram(string name, double value, string[] labels = null)
@@ -103,7 +104,7 @@ namespace NPitaya.Metrics
             var key = BuildKey(name);
             var histogram = _histograms[key];
             Logger.Debug($"Observing histogram {key} with value {value}");
-            histogram.Observe(value);
+            histogram.WithLabels(labels ?? NoLabels).Observe(value);
         }
 
         string BuildKey(string suffix)
