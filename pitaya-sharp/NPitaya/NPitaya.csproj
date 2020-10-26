@@ -16,6 +16,8 @@
         <!-- TODO (felipe.rodopoulos): reintroduce net461 here. DotNetRuntime metrics collections does not support it, but it need it in Unity envs. -->
         <TargetFrameworks>netstandard2.1;netcoreapp3.1</TargetFrameworks>
         <RootNamespace>pitaya</RootNamespace>
+
+        <Nullable>enable</Nullable>
     </PropertyGroup>
 
     <ItemGroup>
