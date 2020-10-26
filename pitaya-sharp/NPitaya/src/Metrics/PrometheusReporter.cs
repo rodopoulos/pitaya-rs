@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Security.Authentication.ExtendedProtection;
 using Microsoft.Extensions.DependencyInjection;
@@ -11,7 +12,7 @@ namespace NPitaya.Metrics
     public class PrometheusReporter
     {
         const string LabelSeparator = "_";
-        static readonly string[] NoLabels = new string[] {};
+        static readonly string[] NoLabels = {};
 
         readonly string _host;
         readonly int _port;
@@ -31,7 +32,7 @@ namespace NPitaya.Metrics
             config.CustomMetrics
         ){}
 
-        private PrometheusReporter(string host, string port, string @namespace, CustomMetrics customMetrics)
+        private PrometheusReporter(string host, string port, string @namespace, CustomMetrics? customMetrics)
         {
             _namespace = @namespace;
             _host = host;
@@ -54,36 +55,36 @@ namespace NPitaya.Metrics
         internal void Start()
         {
             Logger.Info("Starting Prometheus metrics server at {0}:{1}", _host, _port);
-            _dotnetCollector?.StartCollecting();
+            _dotnetCollector.StartCollecting();
             _systemMetrics.AddSystemMetrics();
             _server.Start();
         }
 
-        internal void RegisterCounter(string name, string help = null, string[] labels = null)
+        internal void RegisterCounter(string name, string help, string[] labels)
         {
             var key = BuildKey(name);
             Logger.Debug($"Registering counter metric {key}");
-            var counter = Prometheus.Metrics.CreateCounter(key, help ?? "", labels ?? NoLabels);
+            var counter = Prometheus.Metrics.CreateCounter(key, help, labels);
             _counters.Add(key, counter);
         }
 
-        internal void RegisterGauge(string name, string help = null, string[] labels = null)
+        internal void RegisterGauge(string name, string help, string[] labels)
         {
             var key = BuildKey(name);
             Logger.Debug($"Registering gauge metric {key}");
-            var gauge = Prometheus.Metrics.CreateGauge(key, help ?? "", labels ?? NoLabels);
+            var gauge = Prometheus.Metrics.CreateGauge(key, help, labels);
             _gauges.Add(key, gauge);
         }
 
-        internal void RegisterHistogram(string name, string help = null, string[] labels = null)
+        internal void RegisterHistogram(string name, string help, string[] labels)
         {
             var key = BuildKey(name);
             Logger.Debug($"Registering histogram metric {key}");
-            var histogram = Prometheus.Metrics.CreateHistogram(key, help ?? "", labels ?? NoLabels);
+            var histogram = Prometheus.Metrics.CreateHistogram(key, help, labels);
             _histograms.Add(key, histogram);
         }
 
-        internal void IncCounter(string name, string[] labels = null)
+        internal void IncCounter(string name, string[]? labels)
         {
             var key = BuildKey(name);
             var counter = _counters[key];
@@ -91,7 +92,7 @@ namespace NPitaya.Metrics
             counter.WithLabels(labels ?? NoLabels).Inc();
         }
 
-        internal void SetGauge(string name, double value, string[] labels = null)
+        internal void SetGauge(string name, double value, string[]? labels)
         {
             var key = BuildKey(name);
             var gauge = _gauges[key];
@@ -99,7 +100,7 @@ namespace NPitaya.Metrics
             gauge.WithLabels(labels ?? NoLabels).Set(value);
         }
 
-        internal void ObserveHistogram(string name, double value, string[] labels = null)
+        internal void ObserveHistogram(string name, double value, string[]? labels)
         {
             var key = BuildKey(name);
             var histogram = _histograms[key];
@@ -112,7 +113,7 @@ namespace NPitaya.Metrics
             return $"{_namespace}{LabelSeparator}{suffix}";
         }
 
-        void ImportCustomMetrics(CustomMetrics metrics)
+        void ImportCustomMetrics(CustomMetrics? metrics)
         {
             if (metrics == null) return;
 

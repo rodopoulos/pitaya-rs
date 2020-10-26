@@ -109,9 +109,11 @@ namespace NPitaya
             clusterNotificationCallback = new ClusterNotificationCallbackFunc(ClusterNotificationCallback);
             logFunctionCallback = new LogFunction(LogFunctionCallback);
             var logCtx = GCHandle.Alloc(logFunction, GCHandleType.Normal);
+            var pitayaMetrics = IntPtr.Zero;
             if (metricsConfig.IsEnabled)
             {
                 _metricsReporter = new MetricsReporter(metricsConfig);
+                pitayaMetrics = _metricsReporter.GetPitayaPtr();
             }
 
             IntPtr err = pitaya_initialize_with_nats(
@@ -124,7 +126,7 @@ namespace NPitaya
                 logKind,
                 Marshal.GetFunctionPointerForDelegate(logFunctionCallback),
                 GCHandle.ToIntPtr(logCtx),
-                _metricsReporter?.GetPitayaPtr(),
+                pitayaMetrics,
                 serverInfo.Handle,
                 out pitaya
             );
@@ -290,19 +292,19 @@ namespace NPitaya
             return Rpc<T>("", route, msg);
         }
 
-        public static void IncCounter(string name)
+        public static void IncCounter(string name, string[]? labels = null)
         {
-            _metricsReporter.IncCounter(name);
+            _metricsReporter?.IncCounter(name, labels);
         }
 
-        public static void SetGauge(string name, float value)
+        public static void SetGauge(string name, float value, string[]? labels = null)
         {
-            _metricsReporter.SetGauge(name, value);
+            _metricsReporter?.SetGauge(name, value, labels);
         }
 
-        public static void IncCounter(string name, float value)
+        public static void IncCounter(string name, float value, string[]? labels = null)
         {
-            _metricsReporter.ObserveHistogram(name, value);
+            _metricsReporter?.ObserveHistogram(name, value, labels);
         }
 
         private static void OnServerAddedOrRemovedNativeCb(int serverAdded, IntPtr serverPtr, IntPtr user)

@@ -6,9 +6,9 @@ namespace NPitaya.Metrics
         internal readonly string Host;
         internal readonly string Port;
         internal readonly string Namespace;
-        internal readonly CustomMetrics CustomMetrics;
+        internal readonly CustomMetrics? CustomMetrics;
 
-        public MetricsConfiguration(bool isEnabled, string host, string port, string ns, CustomMetrics customMetrics = null)
+        public MetricsConfiguration(bool isEnabled, string host, string port, string ns, CustomMetrics? customMetrics)
         {
             IsEnabled = isEnabled;
             Host = host;
