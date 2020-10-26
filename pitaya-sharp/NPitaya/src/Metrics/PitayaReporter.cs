@@ -6,6 +6,7 @@ namespace NPitaya.Metrics
 {
     public class PitayaReporter
     {
+        static readonly string[] NoLabels = new string[0];
         const string LabelSeparator = "_";
         const string PitayaSubsystem = "pitaya";
 
@@ -129,6 +130,27 @@ namespace NPitaya.Metrics
         {
             var handle = GCHandle.FromIntPtr(ptr);
             return handle.Target as PrometheusReporter;
+        }
+
+        static unsafe string[] ReadLabels(ref IntPtr labelsPtr, UInt32 size)
+        {
+            if (size == 0)
+            {
+                return NoLabels;
+            }
+
+            var ptr = (IntPtr*) labelsPtr;
+            var labels = new string[size];
+            for (var i = 0; i < size; i++)
+            {
+                var label = Marshal.PtrToStringAnsi(ptr[i]);
+                if (label != null)
+                {
+                    labels[i] = label;
+                }
+            }
+
+            return labels;
         }
 
         private static string BuildKey(string suffix)
