@@ -33,72 +33,99 @@ namespace NPitaya.Metrics
 
         static void RegisterCounterFn(IntPtr prometheusPtr, MetricsOpts opts)
         {
-            var ns = Marshal.PtrToStringAnsi(opts.MetricNamespace);
             // TODO (felipe.rodopoulos): prometheus-net does not support subsystem label yet. We'll use a hardcoded one.
             var name = Marshal.PtrToStringAnsi(opts.Name);
-            var help = Marshal.PtrToStringAnsi(opts.Help);
-            var labels = Marshal.PtrToStructure<string[]>(opts.VariableLabels);
-            var prometheusReporter = RetrievePrometheus(prometheusPtr);
+            if (string.IsNullOrEmpty(name))
+            {
+                Logger.Warn("Tried to register a counter with an empty name");
+                return;
+            }
+            var help = Marshal.PtrToStringAnsi(opts.Help) ?? string.Empty;
+            var labels = ReadLabels(ref opts.VariableLabels, opts.VariableLabelsCount);
+            var prometheus = RetrievePrometheus(prometheusPtr);
             var key = BuildKey(name);
-            prometheusReporter.RegisterCounter(key, help, labels);
+            prometheus?.RegisterCounter(key, help, labels);
         }
 
         static void RegisterHistogramFn(IntPtr prometheusPtr, MetricsOpts opts)
         {
-            var ns = Marshal.PtrToStringAnsi(opts.MetricNamespace);
             // TODO (felipe.rodopoulos): prometheus-net does not support subsystem label yet. We'll use a hardcoded one.
             var name = Marshal.PtrToStringAnsi(opts.Name);
-            var help = Marshal.PtrToStringAnsi(opts.Help);
-            var labels = Marshal.PtrToStructure<string[]>(opts.VariableLabels);
-            var prometheusReporter = RetrievePrometheus(prometheusPtr);
+            if (string.IsNullOrEmpty(name))
+            {
+                Logger.Warn("Tried to register an histogram with an empty name");
+                return;
+            }
+            var help = Marshal.PtrToStringAnsi(opts.Help) ?? string.Empty;
+            var labels = ReadLabels(ref opts.VariableLabels, opts.VariableLabelsCount);
+            var prometheus = RetrievePrometheus(prometheusPtr);
             var key = BuildKey(name);
-            prometheusReporter.RegisterHistogram(key, help, labels);
+            prometheus?.RegisterHistogram(key, help, labels);
         }
 
         static void RegisterGaugeFn(IntPtr prometheusPtr, MetricsOpts opts)
         {
-            var ns = Marshal.PtrToStringAnsi(opts.MetricNamespace);
             // TODO (felipe.rodopoulos): prometheus-net does not support subsystem label yet. We'll use a hardcoded one.
             var name = Marshal.PtrToStringAnsi(opts.Name);
-            var help = Marshal.PtrToStringAnsi(opts.Help);
-            var labels = Marshal.PtrToStructure<string[]>(opts.VariableLabels);
-            var prometheusReporter = RetrievePrometheus(prometheusPtr);
+            if (string.IsNullOrEmpty(name))
+            {
+                Logger.Warn("Tried to register a gaugee with an empty name");
+                return;
+            }
+            var help = Marshal.PtrToStringAnsi(opts.Help) ?? string.Empty;
+            var labels = ReadLabels(ref opts.VariableLabels, opts.VariableLabelsCount);
+            var prometheus = RetrievePrometheus(prometheusPtr);
             var key = BuildKey(name);
-            prometheusReporter.RegisterGauge(key, help, labels);
+            prometheus?.RegisterGauge(key, help, labels);
         }
 
         static void IncCounterFn(IntPtr prometheusPtr, IntPtr name, ref IntPtr labels, UInt32 labelsCount)
         {
-            string nameStr = Marshal.PtrToStringAnsi(name);
-            var labelsArr = Marshal.PtrToStructure<string[]>(labels);
+            string nameStr = Marshal.PtrToStringAnsi(name) ?? string.Empty;
+            if (string.IsNullOrEmpty(nameStr))
+            {
+                Logger.Warn("Tried to increment a counter with an empty name");
+                return;
+            }
+            var labelsArr = ReadLabels(ref labels, labelsCount);
             var prometheus = RetrievePrometheus(prometheusPtr);
-            prometheus.IncCounter(nameStr, labelsArr);
+            prometheus?.IncCounter(nameStr, labelsArr);
         }
 
         static void ObserveHistFn(IntPtr prometheusPtr, IntPtr name, double value, ref IntPtr labels, UInt32 labelsCount)
         {
-            string nameStr = Marshal.PtrToStringAnsi(name);
+            string nameStr = Marshal.PtrToStringAnsi(name) ?? string.Empty;
+            if (string.IsNullOrEmpty(nameStr))
+            {
+                Logger.Warn("Tried to observe an histogram with an empty name");
+                return;
+            }
             var key = BuildKey(nameStr);
-            var labelsArr = Marshal.PtrToStructure<string[]>(labels);
+            var labelsArr = ReadLabels(ref labels, labelsCount);
             var prometheus = RetrievePrometheus(prometheusPtr);
-            prometheus.ObserveHistogram(key, value, labelsArr);
+            prometheus?.ObserveHistogram(key, value, labelsArr);
         }
 
         static void SetGaugeFn(IntPtr prometheusPtr, IntPtr name, double value, ref IntPtr labels, UInt32 labelsCount)
         {
-            string nameStr = Marshal.PtrToStringAnsi(name);
-            var labelsArr = Marshal.PtrToStructure<string[]>(labels);
+            string nameStr = Marshal.PtrToStringAnsi(name) ?? string.Empty;
+            if (string.IsNullOrEmpty(nameStr))
+            {
+                Logger.Warn("Tried to set a gauge with an empty name");
+                return;
+            }
+            var labelsArr = ReadLabels(ref labels, labelsCount);
             var prometheus = RetrievePrometheus(prometheusPtr);
-            prometheus.SetGauge(nameStr, value, labelsArr);
+            prometheus?.SetGauge(nameStr, value, labelsArr);
         }
 
         static void AddGaugeFn(IntPtr prometheusPtr, IntPtr name, double value, ref IntPtr labels, UInt32 labelsCount)
         {
-            string nameStr = Marshal.PtrToStringAnsi(name);
+            string nameStr = Marshal.PtrToStringAnsi(name) ?? string.Empty;
             Logger.Warn($"Adding gauge {nameStr} with val {value}. This method should not be used.");
         }
 
-        private static PrometheusReporter RetrievePrometheus(IntPtr ptr)
+        private static PrometheusReporter? RetrievePrometheus(IntPtr ptr)
         {
             var handle = GCHandle.FromIntPtr(ptr);
             return handle.Target as PrometheusReporter;

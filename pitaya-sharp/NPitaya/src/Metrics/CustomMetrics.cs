@@ -2,7 +2,6 @@ using System.Collections.Generic;
 
 namespace NPitaya.Metrics
 {
-
     internal readonly struct MetricSpec
     {
         internal readonly string Name;
@@ -30,17 +29,17 @@ namespace NPitaya.Metrics
             Histograms = new List<MetricSpec>();
         }
 
-        public void AddCounter(string name, string help, string[] labels)
+        public void AddCounter(string name, string help = null, string[] labels = null)
         {
             Counters.Add(new MetricSpec(name, help, labels));
         }
 
-        public void AddGauge(string name, string help, string[] labels)
+        public void AddGauge(string name, string help = null, string[] labels = null)
         {
             Gauges.Add(new MetricSpec(name, help, labels));
         }
 
-        public void AddHistogram(string name, string help, string[] labels)
+        public void AddHistogram(string name, string help = null, string[] labels = null)
         {
             Histograms.Add(new MetricSpec(name, help, labels));
         }
