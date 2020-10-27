@@ -1,6 +1,7 @@
 using System;
 using System.Runtime.InteropServices;
 using NPitaya.Models;
+using System.Collections.Generic;
 
 namespace NPitaya.Metrics
 {
@@ -42,7 +43,7 @@ namespace NPitaya.Metrics
                 return;
             }
             var help = Marshal.PtrToStringAnsi(opts.Help) ?? string.Empty;
-            var labels = ReadLabels(ref opts.VariableLabels, opts.VariableLabelsCount);
+            var labels = ReadLabels(opts.VariableLabels, opts.VariableLabelsCount);
             var prometheus = RetrievePrometheus(prometheusPtr);
             var key = BuildKey(name);
             prometheus?.RegisterCounter(key, help, labels);
@@ -58,7 +59,7 @@ namespace NPitaya.Metrics
                 return;
             }
             var help = Marshal.PtrToStringAnsi(opts.Help) ?? string.Empty;
-            var labels = ReadLabels(ref opts.VariableLabels, opts.VariableLabelsCount);
+            var labels = ReadLabels(opts.VariableLabels, opts.VariableLabelsCount);
             var prometheus = RetrievePrometheus(prometheusPtr);
             var key = BuildKey(name);
             prometheus?.RegisterHistogram(key, help, labels);
@@ -74,13 +75,13 @@ namespace NPitaya.Metrics
                 return;
             }
             var help = Marshal.PtrToStringAnsi(opts.Help) ?? string.Empty;
-            var labels = ReadLabels(ref opts.VariableLabels, opts.VariableLabelsCount);
+            var labels = ReadLabels(opts.VariableLabels, opts.VariableLabelsCount);
             var prometheus = RetrievePrometheus(prometheusPtr);
             var key = BuildKey(name);
             prometheus?.RegisterGauge(key, help, labels);
         }
 
-        static void IncCounterFn(IntPtr prometheusPtr, IntPtr name, ref IntPtr labels, UInt32 labelsCount)
+        static void IncCounterFn(IntPtr prometheusPtr, IntPtr name, IntPtr labels, UInt32 labelsCount)
         {
             string nameStr = Marshal.PtrToStringAnsi(name) ?? string.Empty;
             if (string.IsNullOrEmpty(nameStr))
@@ -88,12 +89,12 @@ namespace NPitaya.Metrics
                 Logger.Warn("Tried to increment a counter with an empty name");
                 return;
             }
-            var labelsArr = ReadLabels(ref labels, labelsCount);
+            var labelsArr = ReadLabels(labels, labelsCount);
             var prometheus = RetrievePrometheus(prometheusPtr);
             prometheus?.IncCounter(nameStr, labelsArr);
         }
 
-        static void ObserveHistFn(IntPtr prometheusPtr, IntPtr name, double value, ref IntPtr labels, UInt32 labelsCount)
+        static void ObserveHistFn(IntPtr prometheusPtr, IntPtr name, double value, IntPtr labels, UInt32 labelsCount)
         {
             string nameStr = Marshal.PtrToStringAnsi(name) ?? string.Empty;
             if (string.IsNullOrEmpty(nameStr))
@@ -102,12 +103,12 @@ namespace NPitaya.Metrics
                 return;
             }
             var key = BuildKey(nameStr);
-            var labelsArr = ReadLabels(ref labels, labelsCount);
+            var labelsArr = ReadLabels(labels, labelsCount);
             var prometheus = RetrievePrometheus(prometheusPtr);
             prometheus?.ObserveHistogram(key, value, labelsArr);
         }
 
-        static void SetGaugeFn(IntPtr prometheusPtr, IntPtr name, double value, ref IntPtr labels, UInt32 labelsCount)
+        static void SetGaugeFn(IntPtr prometheusPtr, IntPtr name, double value, IntPtr labels, UInt32 labelsCount)
         {
             string nameStr = Marshal.PtrToStringAnsi(name) ?? string.Empty;
             if (string.IsNullOrEmpty(nameStr))
@@ -115,12 +116,12 @@ namespace NPitaya.Metrics
                 Logger.Warn("Tried to set a gauge with an empty name");
                 return;
             }
-            var labelsArr = ReadLabels(ref labels, labelsCount);
+            var labelsArr = ReadLabels(labels, labelsCount);
             var prometheus = RetrievePrometheus(prometheusPtr);
             prometheus?.SetGauge(nameStr, value, labelsArr);
         }
 
-        static void AddGaugeFn(IntPtr prometheusPtr, IntPtr name, double value, ref IntPtr labels, UInt32 labelsCount)
+        static void AddGaugeFn(IntPtr prometheusPtr, IntPtr name, double value, IntPtr labels, UInt32 labelsCount)
         {
             string nameStr = Marshal.PtrToStringAnsi(name) ?? string.Empty;
             Logger.Warn($"Adding gauge {nameStr} with val {value}. This method should not be used.");
@@ -132,14 +133,14 @@ namespace NPitaya.Metrics
             return handle.Target as PrometheusReporter;
         }
 
-        static unsafe string[] ReadLabels(ref IntPtr labelsPtr, UInt32 size)
+        static unsafe string[] ReadLabels(IntPtr labelsPtr, UInt32 size)
         {
             if (size == 0)
             {
                 return NoLabels;
             }
 
-            var ptr = (IntPtr*) labelsPtr;
+            var ptr = (IntPtr*) labelsPtr.ToPointer();
             var labels = new string[size];
             for (var i = 0; i < size; i++)
             {
