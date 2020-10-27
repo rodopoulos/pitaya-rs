@@ -73,7 +73,8 @@ fn generic_register(
         .iter()
         .map(|l| CString::new(l.as_str()).expect("string should be valid"))
         .collect();
-    let mut variable_labels_ptr: Vec<*const c_char> = variable_labels.iter().map(|s| s.as_ptr()).collect();
+    let mut variable_labels_ptr: Vec<*const c_char> =
+        variable_labels.iter().map(|s| s.as_ptr()).collect();
 
     // These options will be passed to C#.
     // We cannot simply get a raw pointer to the &str, since C expects
