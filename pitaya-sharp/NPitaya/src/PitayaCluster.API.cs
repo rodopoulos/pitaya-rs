@@ -319,11 +319,6 @@ namespace NPitaya
             }
 
             var server = (Server)Marshal.PtrToStructure(serverPtr, typeof(Server));
-            if (server == null)
-            {
-                return;
-            }
-
             if (serverAdded == 1)
                 serviceDiscoveryListener.onServer(ServiceDiscoveryAction.ServerAdded, server);
             else
