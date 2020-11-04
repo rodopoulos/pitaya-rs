@@ -22,7 +22,7 @@ pub struct Nats {
     // If this amount is passed, RPCs will fail.
     pub max_rpcs_queued: u32,
 
-    // The NATS connection username. 
+    // The NATS connection username.
     pub auth_user: String,
 
     // The NATS connection password.
@@ -38,7 +38,7 @@ impl Default for Nats {
             max_reconnection_attempts: constants::DEFAULT_NATS_MAX_RECONN_ATTEMPTS,
             max_rpcs_queued: constants::DEFAULT_NATS_MAX_RPCS_QUEUED,
             auth_user: constants::DEFAULT_NATS_AUTH_USER.to_owned(),
-            auth_pass: constants::DEFAULT_NATS_AUTH_PASS.to_owned()
+            auth_pass: constants::DEFAULT_NATS_AUTH_PASS.to_owned(),
         }
     }
 }
