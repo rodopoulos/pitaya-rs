@@ -15,10 +15,10 @@ pub struct Nats {
     #[serde(with = "humantime_serde")]
     pub request_timeout: Duration,
 
-    // The maximum amount of times the nats client will atempt to reconnect.
+    // The maximum amount of times the nats client will attempt to reconnect.
     pub max_reconnection_attempts: u32,
 
-    // The maximum amount of rpcs queued that a nats server will have.
+    // The maximum amount of RPCs queued that a nats server will have.
     // If this amount is passed, RPCs will fail.
     pub max_rpcs_queued: u32,
 
@@ -49,7 +49,7 @@ pub struct Etcd {
     pub url: String,
 
     // The prefix where all keys are going to be stored in ETCD.
-    // This will tipically be the name of your app.
+    // This will typically be the name of your app.
     pub prefix: String,
 
     // How long should the lease TTL be for this server.
