@@ -21,6 +21,12 @@ pub struct Nats {
     // The maximum amount of rpcs queued that a nats server will have.
     // If this amount is passed, RPCs will fail.
     pub max_rpcs_queued: u32,
+
+    // The NATS connection username. 
+    pub auth_user: String,
+
+    // The NATS connection password.
+    pub auth_pass: String,
 }
 
 impl Default for Nats {
@@ -31,6 +37,8 @@ impl Default for Nats {
             request_timeout: constants::DEFAULT_NATS_REQUEST_TIMEOUT,
             max_reconnection_attempts: constants::DEFAULT_NATS_MAX_RECONN_ATTEMPTS,
             max_rpcs_queued: constants::DEFAULT_NATS_MAX_RPCS_QUEUED,
+            auth_user: constants::DEFAULT_NATS_AUTH_USER.to_owned(),
+            auth_pass: constants::DEFAULT_NATS_AUTH_PASS.to_owned()
         }
     }
 }

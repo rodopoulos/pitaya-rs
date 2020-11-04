@@ -241,7 +241,8 @@ impl RpcServer for NatsRpcServer {
 
         // TODO(lhahn): add callbacks here for sending metrics.
         info!(self.logger, "server connecting to nats"; "url" => &self.settings.url);
-        let nats_connection = nats::ConnectionOptions::new()
+        let nats_connection = nats::ConnectionOptions
+            ::with_user_pass(&self.settings.auth_user, &self.settings.auth_pass)
             .max_reconnects(Some(self.settings.max_reconnection_attempts as usize))
             .connect(&self.settings.url)
             .map_err(Error::Nats)?;
