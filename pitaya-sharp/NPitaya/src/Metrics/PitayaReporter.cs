@@ -140,7 +140,14 @@ namespace NPitaya.Metrics
         static void AddGaugeFn(IntPtr prometheusPtr, IntPtr name, double value, IntPtr labels, UInt32 labelsCount)
         {
             string nameStr = Marshal.PtrToStringAnsi(name) ?? string.Empty;
-            Logger.Warn($"Adding gauge {nameStr} with val {value}. This method should not be used.");
+            if (string.IsNullOrEmpty(nameStr))
+            {
+                Logger.Warn("Tried to add to a gauge with an empty name");
+                return;
+            }
+            var labelsArr = ReadLabels(labels, labelsCount);
+            var prometheus = RetrievePrometheus(prometheusPtr);
+            prometheus?.AddGauge(nameStr, value, labelsArr);
         }
 
         private static PrometheusReporter? RetrievePrometheus(IntPtr ptr)
