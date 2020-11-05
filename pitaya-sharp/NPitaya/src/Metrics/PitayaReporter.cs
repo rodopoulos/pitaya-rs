@@ -17,6 +17,7 @@ namespace NPitaya.Metrics
         readonly PitayaCluster.RegisterHistogramFn _registerHistogramDelegate;
         readonly PitayaCluster.IncCounterFn _incCounterDelegate;
         readonly PitayaCluster.SetGaugeFn _setGaugeDelegate;
+        readonly PitayaCluster.AddGaugeFn _addGaugeFn;
         readonly PitayaCluster.ObserveHistFn _observeHistFn;
 
         public IntPtr Ptr { get; }
@@ -31,6 +32,7 @@ namespace NPitaya.Metrics
             _registerHistogramDelegate = RegisterHistogramFn;
             _incCounterDelegate = IncCounterFn;
             _setGaugeDelegate = SetGaugeFn;
+            _addGaugeFn = AddGaugeFn;
             _observeHistFn = ObserveHistFn;
 
             Ptr = PitayaCluster.pitaya_metrics_reporter_new(
@@ -40,7 +42,7 @@ namespace NPitaya.Metrics
                 _incCounterDelegate,
                 _observeHistFn,
                 _setGaugeDelegate,
-                AddGaugeFn,
+                _addGaugeFn,
                 reporterPtr);
         }
 
