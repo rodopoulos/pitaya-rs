@@ -13,7 +13,7 @@ namespace NPitaya
         static async Task<Response> HandleRpc(RpcClient rpcClient, Protos.Request req, RPCType type)
         {
             byte[] data = req.Msg.Data.ToByteArray();
-            Route route = Route.FromString(req.Msg.Route);
+            var route = Route.FromString(req.Msg.Route);
 
             string handlerName = $"{route.service}.{route.method}";
 
@@ -23,7 +23,7 @@ namespace NPitaya
             RemoteMethod handler;
             if (type == RPCType.Sys)
             {
-                s = new Models.PitayaSession(req.Session, rpcClient, req.FrontendID);
+                s = new PitayaSession(req.Session, rpcClient, req.FrontendID);
                 if (!HandlersDict.ContainsKey(handlerName))
                 {
                     response = GetErrorResponse("PIT-404",
