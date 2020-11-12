@@ -12,16 +12,40 @@ namespace NPitaya
     // RpcClient allows sending RPC messages to other Pitaya servers.
     internal class RpcClient
     {
-        IntPtr _pitaya;
-        ISerializer _serializer;
+        readonly IntPtr _pitaya;
+        readonly ISerializer _serializer;
+        readonly ProtobufSerializer _internalRpcSerializer;
 
         public RpcClient(IntPtr pitaya, ISerializer serializer)
         {
             _pitaya = pitaya;
             _serializer = serializer;
+            _internalRpcSerializer = BuildInterRpcSerializer(serializer);
+        }
+
+        static ProtobufSerializer BuildInterRpcSerializer(ISerializer receivedSerializer)
+        {
+            if (receivedSerializer.GetType() == typeof(ProtobufSerializer))
+            {
+                return (ProtobufSerializer) receivedSerializer;
+            }
+
+            return new ProtobufSerializer();
         }
 
         public Task<T> Rpc<T>(string serverId, Route route, object msg)
+        {
+            var payload = SerializerUtils.SerializeOrRaw(msg, _serializer);
+            return DoRpc<T>(serverId, route, payload);
+        }
+
+        internal Task<T> Rpc<T>(string serverId, Route route, IMessage msg)
+        {
+            var payload = SerializerUtils.SerializeOrRaw(msg, _internalRpcSerializer);
+            return DoRpc<T>(serverId, route, payload);
+        }
+
+        Task<T> DoRpc<T>(string serverId, Route route, byte[] payload)
         {
             return Task.Run(() =>
             {
@@ -35,10 +59,9 @@ namespace NPitaya
 
                 unsafe
                 {
-                    var data = SerializerUtils.SerializeOrRaw(msg, _serializer);
-                    fixed (byte* p = data)
+                    fixed (byte* p = payload)
                     {
-                        IntPtr request = PitayaCluster.pitaya_buffer_new((IntPtr)p, data.Length);
+                        IntPtr request = PitayaCluster.pitaya_buffer_new((IntPtr)p, payload.Length);
                         PitayaCluster.pitaya_send_rpc(
                             _pitaya,
                             serverId,
