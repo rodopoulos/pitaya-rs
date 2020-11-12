@@ -35,17 +35,15 @@ namespace NPitaya
 
         public Task<T> Rpc<T>(string serverId, Route route, object msg)
         {
-            var payload = SerializerUtils.SerializeOrRaw(msg, _serializer);
-            return DoRpc<T>(serverId, route, payload);
+            return DoRpc<T>(serverId, route, msg, _serializer);
         }
 
         internal Task<T> Rpc<T>(string serverId, Route route, IMessage msg)
         {
-            var payload = SerializerUtils.SerializeOrRaw(msg, _internalRpcSerializer);
-            return DoRpc<T>(serverId, route, payload);
+            return DoRpc<T>(serverId, route, msg, _internalRpcSerializer);
         }
 
-        Task<T> DoRpc<T>(string serverId, Route route, byte[] payload)
+        Task<T> DoRpc<T>(string serverId, Route route, object msg, ISerializer serializer)
         {
             return Task.Run(() =>
             {
@@ -53,9 +51,10 @@ namespace NPitaya
                 var context = new CallbackContext<T>
                 {
                     t = new TaskCompletionSource<T>(),
-                    serializer = _serializer,
+                    serializer = serializer,
                 };
                 var handle = GCHandle.Alloc(context, GCHandleType.Normal);
+                var payload = SerializerUtils.SerializeOrRaw(msg, serializer);
 
                 unsafe
                 {

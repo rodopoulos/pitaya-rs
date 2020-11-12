@@ -48,7 +48,7 @@ namespace NPitaya
             Task ans;
             if (handler.ArgType != null)
             {
-                var arg = _serializer.Unmarshal(data, handler.ArgType);
+                var arg = Unmarshal(data, handler.ArgType, req.FrontendID);
                 if (type == RPCType.Sys)
                     ans = handler.Method.Invoke(handler.Obj, new[] {s, arg}) as Task;
                 else
@@ -77,6 +77,16 @@ namespace NPitaya
             }
             response.Data = ByteString.CopyFrom(ansBytes);
             return response;
+        }
+
+        static object Unmarshal(byte[] data, Type type, string frontendId)
+        {
+            if (string.IsNullOrEmpty(frontendId))
+            {
+                return _remoteSerializer.Unmarshal(data, type);
+            }
+
+            return _serializer.Unmarshal(data, type);
         }
 
         static void DispatchRpc(RpcClient rpcClient, IntPtr rpc, Protos.Request req)

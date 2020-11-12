@@ -19,6 +19,7 @@ namespace NPitaya
     public partial class PitayaCluster
     {
         private static ISerializer _serializer = new JSONSerializer();
+        static ProtobufSerializer _remoteSerializer = new ProtobufSerializer();
         public delegate string RemoteNameFunc(string methodName);
         delegate void OnSignalFunc();
         static readonly Dictionary<string, RemoteMethod> RemotesDict = new Dictionary<string, RemoteMethod>();
