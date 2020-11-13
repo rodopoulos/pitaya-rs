@@ -67,9 +67,18 @@ namespace NPitaya
 
             if (handler.ReturnType != typeof(void))
             {
+                ISerializer serializer;
+                if (req.Type == RPCType.Sys)
+                {
+                    serializer = _serializer;
+                }
+                else
+                {
+                    serializer = _remoteSerializer;
+                }
                 ansBytes = SerializerUtils.SerializeOrRaw(ans.GetType().
                     GetProperty("Result")
-                    ?.GetValue(ans), _serializer);
+                    ?.GetValue(ans), serializer);
             }
             else
             {
