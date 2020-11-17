@@ -361,9 +361,7 @@ pub extern "C" fn pitaya_rpc_respond(
 
 #[no_mangle]
 pub extern "C" fn pitaya_rpc_drop(rpc: *mut PitayaRpc) {
-    let _ = unsafe {
-        Box::from_raw(rpc);
-    };
+    let _ = unsafe { Box::from_raw(rpc) };
 }
 
 #[no_mangle]
