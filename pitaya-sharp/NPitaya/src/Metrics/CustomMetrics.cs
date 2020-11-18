@@ -31,7 +31,6 @@ namespace NPitaya.Metrics
 
         public HistogramBuckets(HistogramBucketKind kind, double start, double inc, uint count)
         {
-
             Kind = kind;
             Start = start;
             Inc = inc;
