@@ -2,7 +2,7 @@ use async_trait::async_trait;
 use std::{
     ffi::{c_void, CString},
     os::raw::c_char,
-    os::raw::c_double
+    os::raw::c_double,
 };
 
 #[repr(C)]
@@ -95,24 +95,24 @@ fn generic_register(
     let name = CString::new(opts.name.as_str()).expect("string should be valid inside rust");
     let help = CString::new(opts.help.as_str()).expect("string should be valid inside rust");
     let mut bucket_kind: CString = Default::default();
-    let buckets = opts.buckets
+    let buckets = opts
+        .buckets
         .map(|b| {
-            bucket_kind = CString::new(b.kind.as_str()).expect("string should be valid inside rust");        
-            PitayaHistBucketOpts{
+            bucket_kind =
+                CString::new(b.kind.as_str()).expect("string should be valid inside rust");
+            PitayaHistBucketOpts {
                 kind: bucket_kind.as_ptr(),
                 start: b.start,
                 inc: b.inc,
                 count: b.count as u32,
             }
         })
-        .unwrap_or_else(|| PitayaHistBucketOpts{
+        .unwrap_or_else(|| PitayaHistBucketOpts {
             kind: std::ptr::null(),
             start: 1.0,
             inc: 1.0,
             count: 1,
-        });  
-        
-        println!("{:?}", buckets);
+        });
 
     let opts = PitayaMetricsOpts {
         namespace: namespace.as_ptr(),

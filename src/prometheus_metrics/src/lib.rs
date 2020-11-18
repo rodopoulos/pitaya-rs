@@ -4,7 +4,7 @@ use hyper::{
     service::{make_service_fn, service_fn},
     Body, Method, Request, Response, Server,
 };
-use pitaya_core::metrics::{Error, Opts, BucketOpts, Reporter};
+use pitaya_core::metrics::{BucketOpts, Error, Opts, Reporter};
 use prometheus::{Encoder, TextEncoder};
 use slog::{error, info};
 use std::{collections::HashMap, net::SocketAddr, sync::Arc};
