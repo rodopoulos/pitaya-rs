@@ -121,7 +121,7 @@ fn generic_register(
         help: help.as_ptr(),
         variable_labels: variable_labels_ptr.as_mut_ptr(),
         variable_labels_count: variable_labels_ptr.len() as u32,
-        buckets: buckets,
+        buckets,
     };
 
     register_fn(user_data, opts);
