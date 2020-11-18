@@ -76,11 +76,12 @@ namespace NPitaya.Metrics
                 Logger.Warn("Tried to register an histogram with an empty name");
                 return;
             }
-            var help = Marshal.PtrToStringAnsi(opts.Help) ?? string.Empty;
-            var labels = ReadLabels(opts.VariableLabels, opts.VariableLabelsCount);
             var prometheus = RetrievePrometheus(prometheusPtr);
             var key = BuildKey(name);
-            prometheus?.RegisterHistogram(key, help, labels);
+            var help = Marshal.PtrToStringAnsi(opts.Help) ?? string.Empty;
+            var labels = ReadLabels(opts.VariableLabels, opts.VariableLabelsCount);
+            var bucketsConfig = ReadBuckets(ref opts.Buckets);
+            prometheus?.RegisterHistogram(key, help, labels, bucketsConfig);
         }
 
         static void RegisterGaugeFn(IntPtr prometheusPtr, MetricsOpts opts)
@@ -180,6 +181,24 @@ namespace NPitaya.Metrics
             }
 
             return labels;
+        }
+
+        static unsafe CustomHistogramConfig ReadBuckets(ref BucketOpts buckets)
+        {
+            if (buckets.Count == 0)
+            {
+                throw new Exception("Tried to register histogram with no buckets");
+            }
+
+            var typeStr = Marshal.PtrToStringAnsi(buckets.Type);
+            HistogramBucketType type = typeStr switch
+            {
+                "linear" => HistogramBucketType.Linear,
+                "exponential" => HistogramBucketType.Exponential,
+                _ => throw new Exception($"Invalid metric buckets type {typeStr}")
+            };
+
+            return new CustomHistogramConfig(type, buckets.Start, buckets.Increment, buckets.Count);
         }
 
         private static string BuildKey(string suffix)

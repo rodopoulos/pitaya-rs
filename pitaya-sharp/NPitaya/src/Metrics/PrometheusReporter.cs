@@ -1,6 +1,4 @@
-using System;
 using System.Collections.Generic;
-using System.Security.Authentication.ExtendedProtection;
 using Microsoft.Extensions.DependencyInjection;
 using NPitaya.Models;
 using Prometheus;
@@ -76,12 +74,22 @@ namespace NPitaya.Metrics
             _gauges.Add(key, gauge);
         }
 
-        internal void RegisterHistogram(string name, string help, string[] labels)
+        internal void RegisterHistogram(string name, string help, string[] labels, CustomHistogramConfig bucketsConfig)
         {
             var key = BuildKey(name);
-            Logger.Debug($"Registering histogram metric {key}");
-            var histogram = Prometheus.Metrics.CreateHistogram(key, help, labels);
+            var config = BuildHistogramConfig(bucketsConfig, labels);
+            var histogram = Prometheus.Metrics.CreateHistogram(key, help, config);
             _histograms.Add(key, histogram);
+            Logger.Debug($"Registered histogram metric {key}");
+        }
+
+        static HistogramConfiguration BuildHistogramConfig(CustomHistogramConfig config, string[] labels)
+        {
+            double[] buckets;
+            buckets = config.Kind == HistogramBucketType.Exponential
+                ? Histogram.ExponentialBuckets(config.Start, config.Inc, (int)config.Count)
+                : Histogram.LinearBuckets(config.Start, config.Inc, (int)config.Count);
+            return new HistogramConfiguration{LabelNames = labels, Buckets = buckets};
         }
 
         internal void IncCounter(string name, string[]? labels)
@@ -138,7 +146,7 @@ namespace NPitaya.Metrics
 
             foreach (var metric in metrics.Histograms)
             {
-                RegisterHistogram(metric.Name, metric.Help, metric.Labels);
+                RegisterHistogram(metric.Name, metric.Help, metric.Labels, metric.BucketConfig);
             }
         }
     }

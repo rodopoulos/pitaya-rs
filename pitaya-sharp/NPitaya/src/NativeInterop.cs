@@ -3,6 +3,14 @@ using System.Runtime.InteropServices;
 
 namespace NPitaya
 {
+    public enum MetricType : byte
+    {
+        Counter = 0,
+        Gauge,
+        Histogram,
+        Summary
+    }
+
     [StructLayout(LayoutKind.Sequential)]
     public struct MetricsOpts
     {
@@ -12,8 +20,16 @@ namespace NPitaya
         public IntPtr Help;
         public IntPtr VariableLabels;
         public UInt32 VariableLabelsCount;
-        public IntPtr Buckets;
-        public UInt32 BucketsCount;
+        public BucketOpts Buckets;
+    }
+
+    [StructLayout(LayoutKind.Sequential)]
+    public struct BucketOpts
+    {
+        public IntPtr Type;
+        public double Start;
+        public double Increment;
+        public UInt32 Count;
     }
 
     public struct PitayaError
