@@ -19,6 +19,7 @@ pub enum MetricKind {
     Histogram,
 }
 
+#[derive(Debug, PartialEq)]
 pub struct BucketOpts {
     pub kind: String,
     pub start: f64,
@@ -102,42 +103,6 @@ impl Reporter for DummyReporter {
     fn add_gauge(&self, _name: &str, _value: f64, _labels: &[&str]) -> Result<(), Error> {
         Ok(())
     }
-}
-
-/// Creates buckets that are incremented exponentially.
-///
-/// # Examples
-/// ```
-/// let buckets = pitaya_core::metrics::exponential_buckets(1.0, 2.5, 5);
-/// assert_eq!(buckets, vec![1.0, 2.5, 6.25, 15.625, 39.0625]);
-/// ```
-///
-/// # Panics
-/// This function panics if count is zero, start is less than or equal to zero
-/// or factor is smaller than one.
-///
-/// ```rust,should_panic
-/// let _ = pitaya_core::metrics::exponential_buckets(1.0, 2.5, 0);
-/// ```
-/// ```rust,should_panic
-/// let _ = pitaya_core::metrics::exponential_buckets(-1.0, 2.5, 5);
-/// ```
-/// ```rust,should_panic
-/// let _ = pitaya_core::metrics::exponential_buckets(1.0, 0.5, 5);
-/// ```
-pub fn exponential_buckets_old(start: f64, factor: f64, count: usize) -> Vec<f64> {
-    assert!(count >= 1);
-    assert!(start > 0.0);
-    assert!(factor > 1.0);
-
-    let mut next = start;
-    let mut buckets = Vec::with_capacity(count);
-    for _ in 0..count {
-        buckets.push(next);
-        next *= factor;
-    }
-
-    buckets
 }
 
 pub fn exponential_buckets(start: f64, factor: f64, count: usize) -> BucketOpts {
