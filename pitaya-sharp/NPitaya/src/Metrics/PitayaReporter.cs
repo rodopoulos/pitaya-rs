@@ -183,7 +183,7 @@ namespace NPitaya.Metrics
             return labels;
         }
 
-        static unsafe CustomHistogramConfig ReadBuckets(ref BucketOpts buckets)
+        static unsafe HistogramBuckets ReadBuckets(ref BucketOpts buckets)
         {
             if (buckets.Count == 0)
             {
@@ -198,7 +198,7 @@ namespace NPitaya.Metrics
                 _ => throw new Exception($"Invalid metric buckets type {typeStr}")
             };
 
-            return new CustomHistogramConfig(type, buckets.Start, buckets.Increment, buckets.Count);
+            return new HistogramBuckets(type, buckets.Start, buckets.Increment, buckets.Count);
         }
 
         private static string BuildKey(string suffix)

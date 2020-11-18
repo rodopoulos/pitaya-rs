@@ -74,22 +74,21 @@ namespace NPitaya.Metrics
             _gauges.Add(key, gauge);
         }
 
-        internal void RegisterHistogram(string name, string help, string[] labels, CustomHistogramConfig bucketsConfig)
+        internal void RegisterHistogram(string name, string help, string[] labels, HistogramBuckets buckets)
         {
             var key = BuildKey(name);
-            var config = BuildHistogramConfig(bucketsConfig, labels);
+            var config = BuildHistogramConfig(buckets, labels);
             var histogram = Prometheus.Metrics.CreateHistogram(key, help, config);
             _histograms.Add(key, histogram);
             Logger.Debug($"Registered histogram metric {key}");
         }
 
-        static HistogramConfiguration BuildHistogramConfig(CustomHistogramConfig config, string[] labels)
+        static HistogramConfiguration BuildHistogramConfig(HistogramBuckets buckets, string[] labels)
         {
-            double[] buckets;
-            buckets = config.Kind == HistogramBucketType.Exponential
-                ? Histogram.ExponentialBuckets(config.Start, config.Inc, (int)config.Count)
-                : Histogram.LinearBuckets(config.Start, config.Inc, (int)config.Count);
-            return new HistogramConfiguration{LabelNames = labels, Buckets = buckets};
+            var promBuckets = buckets.Kind == HistogramBucketType.Exponential
+                ? Histogram.ExponentialBuckets(buckets.Start, buckets.Inc, (int)buckets.Count)
+                : Histogram.LinearBuckets(buckets.Start, buckets.Inc, (int)buckets.Count);
+            return new HistogramConfiguration{LabelNames = labels, Buckets = promBuckets};
         }
 
         internal void IncCounter(string name, string[]? labels)
@@ -146,7 +145,7 @@ namespace NPitaya.Metrics
 
             foreach (var metric in metrics.Histograms)
             {
-                RegisterHistogram(metric.Name, metric.Help, metric.Labels, metric.BucketConfig);
+                RegisterHistogram(metric.Name, metric.Help, metric.Labels, metric.Buckets);
             }
         }
     }

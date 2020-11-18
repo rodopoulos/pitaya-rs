@@ -22,14 +22,14 @@ namespace NPitaya.Metrics
         Linear
     }
 
-    public struct CustomHistogramConfig
+    public struct HistogramBuckets
     {
         public readonly HistogramBucketType Kind;
         public readonly double Start;
         public readonly double Inc;
         public readonly uint Count;
 
-        public CustomHistogramConfig(HistogramBucketType kind, double start, double inc, uint count)
+        public HistogramBuckets(HistogramBucketType kind, double start, double inc, uint count)
         {
 
             Kind = kind;
@@ -41,15 +41,15 @@ namespace NPitaya.Metrics
 
     internal class HistogramSpec : MetricSpec
     {
-        public readonly CustomHistogramConfig BucketConfig;
+        public readonly HistogramBuckets Buckets;
 
         public HistogramSpec(
             string name,
             string help,
             string[] labels,
-            CustomHistogramConfig bucketConfig): base(name, help, labels)
+            HistogramBuckets buckets): base(name, help, labels)
         {
-            BucketConfig = bucketConfig;
+            Buckets = buckets;
         }
     }
 
@@ -76,9 +76,9 @@ namespace NPitaya.Metrics
             Gauges.Add(new MetricSpec(name, help, labels));
         }
 
-        public void AddHistogram(string name, CustomHistogramConfig bucketConfig, string help = null, string[] labels = null)
+        public void AddHistogram(string name, HistogramBuckets buckets, string help = null, string[] labels = null)
         {
-            Histograms.Add(new HistogramSpec(name, help, labels, bucketConfig));
+            Histograms.Add(new HistogramSpec(name, help, labels, buckets));
         }
     }
 }
