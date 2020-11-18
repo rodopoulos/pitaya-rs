@@ -146,9 +146,9 @@ pub fn exponential_buckets(start: f64, factor: f64, count: usize) -> BucketOpts 
     assert!(factor > 1.0);
     let buckets = BucketOpts {
         kind: "exponential".to_string(),
-        start: start,
+        start,
         inc: factor,
-        count: count,
+        count,
     };
 
     buckets
