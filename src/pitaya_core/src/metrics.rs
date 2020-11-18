@@ -14,9 +14,16 @@ pub enum Error {
 
 #[derive(Debug, PartialEq)]
 pub enum MetricKind {
-    Histogram,
-    Gauge,
     Counter,
+    Gauge,
+    Histogram,
+}
+
+pub struct BucketOpts {
+    pub kind: String,
+    pub start: f64,
+    pub inc: f64,
+    pub count: usize,
 }
 
 /// The options required for a metric.
@@ -32,7 +39,7 @@ pub struct Opts {
     /// The labels that are used for this metric.
     pub variable_labels: Vec<String>,
     /// The buckets for a histogram. This field is ignored for other metric kinds.
-    pub buckets: Vec<f64>,
+    pub buckets: Option<BucketOpts>,
 }
 
 /// Represents a reporter that can be used across multiple threads.
@@ -118,7 +125,7 @@ impl Reporter for DummyReporter {
 /// ```rust,should_panic
 /// let _ = pitaya_core::metrics::exponential_buckets(1.0, 0.5, 5);
 /// ```
-pub fn exponential_buckets(start: f64, factor: f64, count: usize) -> Vec<f64> {
+pub fn exponential_buckets_old(start: f64, factor: f64, count: usize) -> Vec<f64> {
     assert!(count >= 1);
     assert!(start > 0.0);
     assert!(factor > 1.0);
@@ -129,6 +136,20 @@ pub fn exponential_buckets(start: f64, factor: f64, count: usize) -> Vec<f64> {
         buckets.push(next);
         next *= factor;
     }
+
+    buckets
+}
+
+pub fn exponential_buckets(start: f64, factor: f64, count: usize) -> BucketOpts {
+    assert!(count >= 1);
+    assert!(start > 0.0);
+    assert!(factor > 1.0);
+    let buckets = BucketOpts{
+        kind: "exponential".to_string(),
+        start: start,
+        inc: factor,
+        count: count
+    };
 
     buckets
 }
