@@ -191,14 +191,14 @@ namespace NPitaya.Metrics
             }
 
             var typeStr = Marshal.PtrToStringAnsi(buckets.Type);
-            HistogramBucketType type = typeStr switch
+            HistogramBucketKind kind = typeStr switch
             {
-                "linear" => HistogramBucketType.Linear,
-                "exponential" => HistogramBucketType.Exponential,
+                "linear" => HistogramBucketKind.Linear,
+                "exponential" => HistogramBucketKind.Exponential,
                 _ => throw new Exception($"Invalid metric buckets type {typeStr}")
             };
 
-            return new HistogramBuckets(type, buckets.Start, buckets.Increment, buckets.Count);
+            return new HistogramBuckets(kind, buckets.Start, buckets.Increment, buckets.Count);
         }
 
         private static string BuildKey(string suffix)

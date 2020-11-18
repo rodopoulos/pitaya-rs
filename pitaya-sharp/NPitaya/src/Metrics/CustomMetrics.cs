@@ -16,7 +16,7 @@ namespace NPitaya.Metrics
         }
     }
 
-    public enum HistogramBucketType
+    public enum HistogramBucketKind
     {
         Exponential,
         Linear
@@ -24,12 +24,12 @@ namespace NPitaya.Metrics
 
     public struct HistogramBuckets
     {
-        public readonly HistogramBucketType Kind;
+        public readonly HistogramBucketKind Kind;
         public readonly double Start;
         public readonly double Inc;
         public readonly uint Count;
 
-        public HistogramBuckets(HistogramBucketType kind, double start, double inc, uint count)
+        public HistogramBuckets(HistogramBucketKind kind, double start, double inc, uint count)
         {
 
             Kind = kind;

@@ -31,7 +31,7 @@ namespace PitayaCSharpExample
             var customMetrics = new CustomMetrics();
             customMetrics.AddHistogram(
                 "my_histogram",
-                new HistogramBuckets(HistogramBucketType.Linear, 1, 2, 10),
+                new HistogramBuckets(HistogramBucketKind.Linear, 1, 2, 10),
                 "Some test histogram",
                 new []{"my_label"});
             var metricsParameters = new MetricsConfiguration(

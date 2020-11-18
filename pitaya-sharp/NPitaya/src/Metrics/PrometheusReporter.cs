@@ -85,7 +85,7 @@ namespace NPitaya.Metrics
 
         static HistogramConfiguration BuildHistogramConfig(HistogramBuckets buckets, string[] labels)
         {
-            var promBuckets = buckets.Kind == HistogramBucketType.Exponential
+            var promBuckets = buckets.Kind == HistogramBucketKind.Exponential
                 ? Histogram.ExponentialBuckets(buckets.Start, buckets.Inc, (int)buckets.Count)
                 : Histogram.LinearBuckets(buckets.Start, buckets.Inc, (int)buckets.Count);
             return new HistogramConfiguration{LabelNames = labels, Buckets = promBuckets};
