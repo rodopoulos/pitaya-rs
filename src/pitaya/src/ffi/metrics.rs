@@ -1,8 +1,7 @@
 use async_trait::async_trait;
 use std::{
     ffi::{c_void, CString},
-    os::raw::c_char,
-    os::raw::c_double,
+    os::raw::{c_char, c_double},
 };
 
 #[repr(C)]
