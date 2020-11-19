@@ -108,9 +108,9 @@ fn generic_register(
         })
         .unwrap_or_else(|| PitayaHistBucketOpts {
             kind: std::ptr::null(),
-            start: 1.0,
-            inc: 1.0,
-            count: 1,
+            start: 0.0,
+            inc: 0.0,
+            count: 0,
         });
 
     let opts = PitayaMetricsOpts {
