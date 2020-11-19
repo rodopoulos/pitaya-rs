@@ -93,24 +93,31 @@ fn generic_register(
         CString::new(opts.subsystem.as_str()).expect("string should be valid inside rust");
     let name = CString::new(opts.name.as_str()).expect("string should be valid inside rust");
     let help = CString::new(opts.help.as_str()).expect("string should be valid inside rust");
-    let mut bucket_kind: CString = Default::default();
-    let buckets = opts
+    let (buckets, _) = opts
         .buckets
         .map(|b| {
-            bucket_kind =
+            let bucket_kind =
                 CString::new(b.kind.as_str()).expect("string should be valid inside rust");
-            PitayaHistBucketOpts {
-                kind: bucket_kind.as_ptr(),
-                start: b.start,
-                inc: b.inc,
-                count: b.count as u32,
-            }
+            (
+                PitayaHistBucketOpts {
+                    kind: bucket_kind.as_ptr(),
+                    start: b.start,
+                    inc: b.inc,
+                    count: b.count as u32,
+                },
+                bucket_kind,
+            )
         })
-        .unwrap_or_else(|| PitayaHistBucketOpts {
-            kind: std::ptr::null(),
-            start: 0.0,
-            inc: 0.0,
-            count: 0,
+        .unwrap_or_else(|| {
+            (
+                PitayaHistBucketOpts {
+                    kind: std::ptr::null(),
+                    start: 0.0,
+                    inc: 0.0,
+                    count: 0,
+                },
+                Default::default(),
+            )
         });
 
     let opts = PitayaMetricsOpts {
