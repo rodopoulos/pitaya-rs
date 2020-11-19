@@ -190,7 +190,7 @@ namespace NPitaya.Metrics
                 throw new Exception("Tried to register histogram with no buckets");
             }
 
-            var typeStr = Marshal.PtrToStringAnsi(buckets.Type);
+            var typeStr = Marshal.PtrToStringAnsi(buckets.Kind);
             HistogramBucketKind kind = typeStr switch
             {
                 "linear" => HistogramBucketKind.Linear,

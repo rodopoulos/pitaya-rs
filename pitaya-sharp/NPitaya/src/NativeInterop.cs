@@ -18,7 +18,7 @@ namespace NPitaya
     [StructLayout(LayoutKind.Sequential)]
     public struct BucketOpts
     {
-        public IntPtr Type;
+        public IntPtr Kind;
         public double Start;
         public double Increment;
         public UInt32 Count;
