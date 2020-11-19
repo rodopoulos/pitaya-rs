@@ -3,14 +3,6 @@ using System.Runtime.InteropServices;
 
 namespace NPitaya
 {
-    public enum MetricType : byte
-    {
-        Counter = 0,
-        Gauge,
-        Histogram,
-        Summary
-    }
-
     [StructLayout(LayoutKind.Sequential)]
     public struct MetricsOpts
     {
