@@ -124,6 +124,8 @@ jobs:
         run: |
           chmod 744 libpitaya.dylib
           chmod 744 libpitaya.so
+          mkdir -p target/release
+          mv libpitaya.dylib libpitaya.so target/release
 
       - name: "Build NPitaya"
         run: |
