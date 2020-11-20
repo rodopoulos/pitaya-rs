@@ -12,7 +12,7 @@ env:
 
 jobs:
   test:
-    name: test pitaya
+    name: Test Pitaya Rust
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -32,7 +32,7 @@ jobs:
           makers undeps
 
   build-mac:
-    name: build pitaya for mac
+    name: Build for macOS
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v2
@@ -61,7 +61,7 @@ jobs:
           path: libpitaya.dylib.tar
 
   build-linux:
-    name: build pitaya for linux
+    name: Build for Linux
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -87,7 +87,7 @@ jobs:
           path: libpitaya.so.tar
 
   lint:
-    name: lint
+    name: Lint
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -107,7 +107,7 @@ jobs:
         run: cargo clippy --all --tests
 
   nupkg:
-    name: create nupkg
+    name: Create .nupkg
     runs-on: ubuntu-latest
     needs:
       - test
@@ -119,12 +119,12 @@ jobs:
         with:
           submodules: true
 
-      # Download Mac binary
+      # Download Linux binary
       - uses: actions/download-artifact@v2
         with:
           name: libpitaya.so.tar
 
-      # Download Libnux binary
+      # Download macOS binary
       - uses: actions/download-artifact@v2
         with:
           name: libpitaya.dylib.tar
@@ -135,7 +135,7 @@ jobs:
           tar -xvf libpitaya.dylib.tar
           tar -xvf libpitaya.so.tar
 
-      - name: "build c#"
+      - name: "Build NPitaya"
         run: |
           cd pitaya-sharp
           make pack
